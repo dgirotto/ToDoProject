@@ -7,9 +7,46 @@
 
 .title {
     text-align: center;
+    color: #bbff98;
+    margin-bottom: 30px;
 }
 
-.button-container {
+.item-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.item {
+    cursor: pointer;
+    margin-bottom: 5px;
+    padding: 20px;
+    background: #e6e6e6 !important;
+    color: black;
+}
+
+.item-header {
     display: flex;
     justify-content: space-between;
+    font-size: larger;
+}
+
+.item-body {
+    margin-top: 10px;
+}
+
+.item-header > div {
+    display: flex;
+    align-items: center;
+}
+
+.icon {
+    font-size: 30px !important;
+}
+
+.complete {
+    color: rgb(67, 177, 67);
+}
+
+.incomplete {
+    color: rgb(231, 28, 28);
 }
