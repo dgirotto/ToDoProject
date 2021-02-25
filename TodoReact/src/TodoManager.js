@@ -1,4 +1,7 @@
 import React, { Component } from "react";
+
+import { TodoService } from "./services/todo.service"
+
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import TextField from '@material-ui/core/TextField';
@@ -12,8 +15,58 @@ import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 export class TodoItem extends Component {
     state = {
         item: this.props.item,
-        open: false
+        open: false,
+        isEditing: false,
+        formValues: {
+            title: "",
+            description: "",
+            dueDate: "",
+            isComplete: false
+        }
     };
+
+    componentDidMount() {
+        this.setFormValues();
+    }
+
+    componentWillReceiveProps(newProps) {
+    }
+
+    setFormValues = () => {
+        this.setState({
+            formValues: {
+                title: this.state.item.title,
+                description: this.state.item.description,
+                dueDate: this.state.item.dueDate,
+                isComplete: this.state.item.isComplete
+            }
+        });
+    }
+
+    updateTodoItem = () => {
+        console.log(this.state.formValues);
+        // TodoService.updateTodoItem(this.state.formValues);
+    }
+
+    editTodoItem = event => {
+        this.setState({ isEditing: !this.state.isEditing });
+        event.stopPropagation();
+    }
+
+    toggleCompletion = event => {
+        let newFormValues = this.state.formValues;
+        newFormValues.isComplete = !newFormValues.isComplete;
+
+        // this.setState({
+        //     formValues: newFormValues
+        // }, () => {
+        //     this.updateTodoItem();
+        // });
+
+        this.setState({ formValues: newFormValues });
+        this.updateTodoItem();
+        event.stopPropagation();
+    }
 
     render() {
         return (
@@ -21,24 +74,76 @@ export class TodoItem extends Component {
                 onClick={() => this.setState({ open: !this.state.open })}
                 className="item"
                 style={{ cursor: "pointer" }}>
-                <div className="item-header">
-                    <div>
-                        {this.state.item.completionDate ?
-                            <CheckCircleRoundedIcon className="icon complete" /> :
-                            <CancelRoundedIcon className="icon incomplete" />}
-                        <span style={{ marginLeft: "10px" }}>{this.state.item.title}</span>
-                    </div>
-                    <IconButton aria-label="expand row" size="small">
-                        {this.state.open ?
-                            <KeyboardArrowUpIcon className="icon" /> :
-                            <KeyboardArrowDownIcon className="icon" />}
-                    </IconButton>
-                </div>
-                {this.state.open && (
-                    <div className="item-body">
-                        {this.state.item.content}
-                    </div>
-                )}
+                {!this.state.isEditing ?
+                    <>
+                        <div className="item-header">
+                            <div>
+                                {this.state.item.isComplete ?
+                                    <CheckCircleRoundedIcon className="icon complete" /> :
+                                    <CancelRoundedIcon className="icon incomplete" />}
+                                <span style={{ marginLeft: "10px" }}>{this.state.item.title}</span>
+                            </div>
+                            <IconButton aria-label="expand row" size="small">
+                                {this.state.open ?
+                                    <KeyboardArrowUpIcon className="icon" /> :
+                                    <KeyboardArrowDownIcon className="icon" />}
+                            </IconButton>
+                        </div>
+                        {this.state.open && (
+                            <div className="item-body">
+                                {this.state.item.description && (
+                                    <div className="body-content">
+                                        <h3 className="body-title">DESCRIPTION</h3>
+                                        {this.state.item.description}
+                                    </div>
+                                )}
+                                <div className="body-content">
+                                    <h3 className="body-title">DUE DATE</h3>
+                                    {this.state.item.dueDate}
+                                </div>
+                                <div className="button-container">
+                                    <Button
+                                        onClick={this.toggleCompletion}
+                                        variant="contained"
+                                        color="primary"
+                                        className="button"
+                                        style={{ marginRight: "10px", background: this.state.item.isComplete ? "#e71c1c" : "#0a8e0a" }}>
+                                        {this.state.item.isComplete ? "INCOMPLETE" : "COMPLETE"}
+                                    </Button>
+                                    <div className="spacer" />
+                                    <Button
+                                        onClick={this.editTodoItem}
+                                        variant="contained"
+                                        color="primary"
+                                        className="button"
+                                        style={{ background: "#ffaa0e" }}>
+                                        EDIT
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                    :
+                    <>
+                        <div className="button-container">
+                            <Button
+                                // onClick={this.resetFormFields}
+                                variant="contained"
+                                color="primary"
+                                className="button">
+                                SAVE
+                            </Button>
+                            <div className="spacer" />
+                            <Button
+                                // onClick={this.showFormToggle}
+                                variant="contained"
+                                color="secondary"
+                                className="button">
+                                CANCEL
+                            </Button>
+                        </div>
+                    </>
+                }
             </Box>
         );
     }
@@ -56,30 +161,22 @@ class TodoManager extends Component {
             {
                 id: 1,
                 title: "Item 1",
-                content: "Item 1 content",
-                dueDate: null,
-                completionDate: "10-11-2011"
+                description: "Item 1 content",
+                dueDate: "10-12-2021",
+                isComplete: true
             },
             {
                 id: 2,
                 title: "Item 2",
-                content: "Item 2 content",
-                dueDate: null,
-                completionDate: null
+                description: "Item 2 content",
+                dueDate: "11-19-2021",
+                isComplete: false
             },
         ]
     }
 
-    selectItem = (id) => {
-        // this.setState
-        alert(id);
-    }
-
-    checkItem = (e) => {
-        console.log(e);
-    }
-
     showFormToggle = () => {
+        this.resetFormFields();
         this.setState({ showForm: !this.state.showForm })
     }
 
@@ -98,9 +195,6 @@ class TodoManager extends Component {
     }
 
     handleFormChange = event => {
-        console.log(event.target.name);
-        console.log(event.target.value);
-
         const newFormValues = Object.assign(
             this.state.formValues,
             { [event.target.name]: event.target.value }
@@ -191,7 +285,7 @@ class TodoManager extends Component {
                                             variant="contained"
                                             color="secondary"
                                             className="button">
-                                            CLOSE
+                                            CANCEL
                                         </Button>
                                     </div>
                                 </div>

@@ -1,7 +1,7 @@
 .main-container {
     max-width: 1140px;
     height: 100%; 
-    margin: 50px auto 0;
+    margin: 50px auto;
     padding: 0 15px;
 }
 
@@ -56,7 +56,7 @@
     box-sizing: border-box;    
     border-radius: 4px;
     background: #f7f7f7 !important;
-    color: #080808;
+    color: #242424;
 }
 
 .item-header {
@@ -67,6 +67,17 @@
 
 .item-body {
     margin-top: 10px;
+}
+
+.body-content {
+    padding-bottom: 15px;
+    padding-top: 5px;
+}
+
+.body-title {
+    font-size: 15px;
+    margin: 0 0 5px;
+    color: #565656;
 }
 
 .item-header > div {
