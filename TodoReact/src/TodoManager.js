@@ -12,6 +12,71 @@ import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 
+export class TodoForm extends Component {
+
+    render() {
+        return (
+            <form noValidate autoComplete="off">
+                <div className="todo-form">
+                    <TextField
+                        required
+                        name="title"
+                        label="Title"
+                        variant="outlined"
+                        value={this.props.formValues.title}
+                        onChange={this.props.handleFormChange}
+                        className="input-field"
+                    />
+                    <TextField
+                        multiline
+                        rowsMax={4}
+                        name="description"
+                        label="Description"
+                        variant="outlined"
+                        value={this.props.formValues.description}
+                        onChange={this.props.handleFormChange}
+                    />
+                    <TextField
+                        type="date"
+                        label="Due Date"
+                        name="dueDate"
+                        variant="outlined"
+                        value={this.props.formValues.dueDate}
+                        onChange={this.props.handleFormChange}
+                    />
+                    <div className="button-container">
+                        <Button
+                            disabled={!this.props.formValues.title || this.props.formValues.title.trim() === ''}
+                            onClick={this.props.addTodoItem}
+                            variant="contained"
+                            color="primary"
+                            className="button"
+                            style={{ marginRight: "10px" }}>
+                            ADD
+                    </Button>
+                        <Button
+                            onClick={this.props.resetFormFields}
+                            variant="contained"
+                            color="secondary"
+                            className="button"
+                            style={{ background: "#3e3e3e" }}>
+                            RESET
+                    </Button>
+                        <div className="spacer" />
+                        <Button
+                            onClick={this.props.showFormToggle}
+                            variant="contained"
+                            color="secondary"
+                            className="button">
+                            CANCEL
+                    </Button>
+                    </div>
+                </div>
+            </form>
+        );
+    }
+}
+
 export class TodoItem extends Component {
     state = {
         item: this.props.item,
@@ -65,6 +130,7 @@ export class TodoItem extends Component {
 
         this.setState({ formValues: newFormValues });
         this.updateTodoItem();
+
         event.stopPropagation();
     }
 
@@ -233,63 +299,12 @@ class TodoManager extends Component {
                         </Button>
                         :
                         <Box p={2} className="item">
-                            <form noValidate autoComplete="off">
-                                <div className="todo-form">
-                                    <TextField
-                                        required
-                                        name="title"
-                                        label="Title"
-                                        variant="outlined"
-                                        value={this.state.formValues.title}
-                                        onChange={this.handleFormChange}
-                                        className="input-field"
-                                    />
-                                    <TextField
-                                        multiline
-                                        rowsMax={4}
-                                        name="description"
-                                        label="Description"
-                                        variant="outlined"
-                                        value={this.state.formValues.description}
-                                        onChange={this.handleFormChange}
-                                    />
-                                    <TextField
-                                        type="date"
-                                        label="Due Date"
-                                        name="dueDate"
-                                        variant="outlined"
-                                        value={this.state.formValues.dueDate}
-                                        onChange={this.handleFormChange}
-                                    />
-                                    <div className="button-container">
-                                        <Button
-                                            disabled={!this.state.formValues.title || this.state.formValues.title.trim() === ''}
-                                            onClick={this.addTodoItem}
-                                            variant="contained"
-                                            color="primary"
-                                            className="button"
-                                            style={{ marginRight: "10px" }}>
-                                            ADD
-                                        </Button>
-                                        <Button
-                                            onClick={this.resetFormFields}
-                                            variant="contained"
-                                            color="secondary"
-                                            className="button"
-                                            style={{ background: "#3e3e3e" }}>
-                                            RESET
-                                        </Button>
-                                        <div className="spacer" />
-                                        <Button
-                                            onClick={this.showFormToggle}
-                                            variant="contained"
-                                            color="secondary"
-                                            className="button">
-                                            CANCEL
-                                        </Button>
-                                    </div>
-                                </div>
-                            </form>
+                            <TodoForm
+                                formValues={this.state.formValues}
+                                handleFormChange={this.handleFormChange}
+                                resetFormFields={this.resetFormFields}
+                                showFormToggle={this.showFormToggle}
+                                addTodoItem={this.addTodoItem} />
                         </Box>
                     }
                 </div>
