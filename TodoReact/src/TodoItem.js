@@ -96,7 +96,7 @@ export class TodoItem extends Component {
                 {!this.state.showForm ?
                     <>
                         <div className="item-header">
-                            <span>{this.state.item.title}</span>
+                            <div>{this.state.item.title}</div>
                             <div>
                                 {this.state.item.isComplete ?
                                     <span className="badge complete">COMPLETED</span> :
