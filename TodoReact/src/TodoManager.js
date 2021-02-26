@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 
-import { TodoService } from "./services/todo.service"
-
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import TextField from '@material-ui/core/TextField';
 import IconButton from "@material-ui/core/IconButton";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
+
+import { TodoService } from "./services/todo.service"
 
 export class TodoForm extends Component {
     render() {
@@ -78,6 +78,7 @@ export class TodoItem extends Component {
         open: false,
         showForm: false,
         formValues: {
+            id: 0,
             title: "",
             description: "",
             dueDate: "",
@@ -89,13 +90,16 @@ export class TodoItem extends Component {
         this.setFormFields();
     }
 
-    // componentWillReceiveProps(newProps) {
-    //     this.setFormFields();
-    // }
+    componentWillReceiveProps(newProps) {
+        this.setState({ item: newProps.item }, () => {
+            this.setFormFields();
+        });
+    }
 
     setFormFields = () => {
         this.setState({
             formValues: {
+                id: this.state.item.id,
                 title: this.state.item.title,
                 description: this.state.item.description,
                 dueDate: this.state.item.dueDate,
@@ -121,12 +125,10 @@ export class TodoItem extends Component {
         });
     }
 
-    updateTodoItem = () => {
-        TodoService.updateTodoItem(this.state.formValues)
+    updateTodoItem = event => {
+        TodoService.updateTodoItem(this.state.item.id, this.state.formValues)
             .then(() => {
-                // this.setFormFields();
                 this.props.getTodoItems();
-
                 this.setState({
                     showForm: false
                 });
@@ -134,6 +136,10 @@ export class TodoItem extends Component {
             .catch(() => {
                 alert("Unable to update item!");
             });
+
+        if (event) {
+            event.stopPropagation();
+        }
     }
 
     editTodoItem = event => {
@@ -144,9 +150,9 @@ export class TodoItem extends Component {
     toggleCompletion = event => {
         let newFormValues = this.state.formValues;
         newFormValues.isComplete = !newFormValues.isComplete;
-
-        this.setState({ formValues: newFormValues });
-        this.updateTodoItem();
+        this.setState({ formValues: newFormValues }, () => {
+            this.updateTodoItem();
+        });
         event.stopPropagation();
     }
 
@@ -162,7 +168,7 @@ export class TodoItem extends Component {
                             <span>{this.state.item.title}</span>
                             <div>
                                 {this.state.item.isComplete ?
-                                    <span className="badge completed">COMPLETED</span> :
+                                    <span className="badge complete">COMPLETED</span> :
                                     <span className="badge incomplete">NOT COMPLETED</span>
                                 }
                                 <IconButton aria-label="expand row" size="small">
@@ -241,7 +247,6 @@ class TodoManager extends Component {
             .then(() => {
                 this.resetFormFields();
                 this.getTodoItems();
-
                 this.setState({
                     showForm: false
                 });
@@ -257,7 +262,6 @@ class TodoManager extends Component {
                 res.data.forEach(item => {
                     item.dueDate = item.dueDate.slice(0, 10);
                 });
-
                 this.setState({ todoItems: res.data });
             })
             .catch(() => {

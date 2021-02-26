@@ -19,10 +19,10 @@ function addTodoItem(body) {
     );
 }
 
-function updateTodoItem(body) {
+function updateTodoItem(id, body) {
     const headers = getHeaders();
-    return axios.post(
-        apiEndpoint,
+    return axios.put(
+        `${apiEndpoint}/${id}`,
         body,
         { headers }
     );
