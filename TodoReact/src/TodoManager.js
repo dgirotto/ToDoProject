@@ -108,10 +108,9 @@ export class TodoItem extends Component {
         });
     }
 
-    showFormToggle = event => {
+    showFormToggle = () => {
         this.setFormFields();
         this.setState({ showForm: !this.state.showForm })
-        event.stopPropagation();
     }
 
     handleFormChange = event => {
@@ -125,7 +124,7 @@ export class TodoItem extends Component {
         });
     }
 
-    updateTodoItem = event => {
+    updateTodoItem = () => {
         TodoService.updateTodoItem(this.state.item.id, this.state.formValues)
             .then(() => {
                 this.props.getTodoItems();
@@ -136,10 +135,6 @@ export class TodoItem extends Component {
             .catch(() => {
                 alert("Unable to update item!");
             });
-
-        if (event) {
-            event.stopPropagation();
-        }
     }
 
     editTodoItem = event => {
@@ -150,6 +145,7 @@ export class TodoItem extends Component {
     toggleCompletion = event => {
         let newFormValues = this.state.formValues;
         newFormValues.isComplete = !newFormValues.isComplete;
+
         this.setState({ formValues: newFormValues }, () => {
             this.updateTodoItem();
         });
