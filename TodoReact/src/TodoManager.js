@@ -13,7 +13,6 @@ import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 
 export class TodoForm extends Component {
-
     render() {
         return (
             <form noValidate autoComplete="off">
@@ -47,21 +46,20 @@ export class TodoForm extends Component {
                     <div className="button-container">
                         <Button
                             disabled={!this.props.formValues.title || this.props.formValues.title.trim() === ''}
-                            onClick={this.props.addTodoItem}
+                            onClick={this.props.saveTodoItem}
                             variant="contained"
                             color="primary"
-                            className="button"
-                            style={{ marginRight: "10px" }}>
-                            ADD
-                    </Button>
+                            className="button">
+                            {this.props.isEditForm ? "UPDATE" : "ADD"}
+                        </Button>
                         <Button
                             onClick={this.props.resetFormFields}
                             variant="contained"
                             color="secondary"
                             className="button"
-                            style={{ background: "#3e3e3e" }}>
+                            style={{ marginLeft: "10px", background: "#3e3e3e" }}>
                             RESET
-                    </Button>
+                        </Button>
                         <div className="spacer" />
                         <Button
                             onClick={this.props.showFormToggle}
@@ -69,7 +67,7 @@ export class TodoForm extends Component {
                             color="secondary"
                             className="button">
                             CANCEL
-                    </Button>
+                        </Button>
                     </div>
                 </div>
             </form>
@@ -81,7 +79,7 @@ export class TodoItem extends Component {
     state = {
         item: this.props.item,
         open: false,
-        isEditing: false,
+        showForm: false,
         formValues: {
             title: "",
             description: "",
@@ -91,13 +89,13 @@ export class TodoItem extends Component {
     };
 
     componentDidMount() {
-        this.setFormValues();
+        this.setFormFields();
     }
 
     componentWillReceiveProps(newProps) {
     }
 
-    setFormValues = () => {
+    setFormFields = () => {
         this.setState({
             formValues: {
                 title: this.state.item.title,
@@ -108,13 +106,29 @@ export class TodoItem extends Component {
         });
     }
 
+    showFormToggle = event => {
+        this.setFormFields();
+        this.setState({ showForm: !this.state.showForm })
+        event.stopPropagation();
+    }
+
+    handleFormChange = event => {
+        const newFormValues = Object.assign(
+            this.state.formValues,
+            { [event.target.name]: event.target.value }
+        );
+
+        this.setState({
+            formValues: newFormValues
+        });
+    }
+
     updateTodoItem = () => {
-        console.log(this.state.formValues);
         // TodoService.updateTodoItem(this.state.formValues);
     }
 
     editTodoItem = event => {
-        this.setState({ isEditing: !this.state.isEditing });
+        this.setState({ showForm: !this.state.showForm });
         event.stopPropagation();
     }
 
@@ -122,15 +136,8 @@ export class TodoItem extends Component {
         let newFormValues = this.state.formValues;
         newFormValues.isComplete = !newFormValues.isComplete;
 
-        // this.setState({
-        //     formValues: newFormValues
-        // }, () => {
-        //     this.updateTodoItem();
-        // });
-
         this.setState({ formValues: newFormValues });
         this.updateTodoItem();
-
         event.stopPropagation();
     }
 
@@ -140,7 +147,7 @@ export class TodoItem extends Component {
                 onClick={() => this.setState({ open: !this.state.open })}
                 className="item"
                 style={{ cursor: "pointer" }}>
-                {!this.state.isEditing ?
+                {!this.state.showForm ?
                     <>
                         <div className="item-header">
                             <div>
@@ -190,25 +197,14 @@ export class TodoItem extends Component {
                         )}
                     </>
                     :
-                    <>
-                        <div className="button-container">
-                            <Button
-                                // onClick={this.resetFormFields}
-                                variant="contained"
-                                color="primary"
-                                className="button">
-                                SAVE
-                            </Button>
-                            <div className="spacer" />
-                            <Button
-                                // onClick={this.showFormToggle}
-                                variant="contained"
-                                color="secondary"
-                                className="button">
-                                CANCEL
-                            </Button>
-                        </div>
-                    </>
+                    <TodoForm
+                        isEditForm={true}
+                        formValues={this.state.formValues}
+                        resetFormFields={this.setFormFields}
+                        showFormToggle={this.showFormToggle}
+                        handleFormChange={this.handleFormChange}
+                        saveTodoItem={this.updateTodoItem}
+                    />
                 }
             </Box>
         );
@@ -228,26 +224,17 @@ class TodoManager extends Component {
                 id: 1,
                 title: "Item 1",
                 description: "Item 1 content",
-                dueDate: "10-12-2021",
+                dueDate: "2021-10-25",
                 isComplete: true
             },
             {
                 id: 2,
                 title: "Item 2",
                 description: "Item 2 content",
-                dueDate: "11-19-2021",
+                dueDate: "2021-11-17",
                 isComplete: false
             },
         ]
-    }
-
-    showFormToggle = () => {
-        this.resetFormFields();
-        this.setState({ showForm: !this.state.showForm })
-    }
-
-    addTodoItem = () => {
-        alert("SUBMITTING");
     }
 
     resetFormFields = () => {
@@ -260,6 +247,11 @@ class TodoManager extends Component {
         });
     }
 
+    showFormToggle = () => {
+        this.resetFormFields();
+        this.setState({ showForm: !this.state.showForm })
+    }
+
     handleFormChange = event => {
         const newFormValues = Object.assign(
             this.state.formValues,
@@ -269,6 +261,10 @@ class TodoManager extends Component {
         this.setState({
             formValues: newFormValues
         });
+    }
+
+    addTodoItem = () => {
+        alert("ADDING TODO ITEM");
     }
 
     render() {
@@ -300,11 +296,13 @@ class TodoManager extends Component {
                         :
                         <Box p={2} className="item">
                             <TodoForm
+                                isEditForm={false}
                                 formValues={this.state.formValues}
-                                handleFormChange={this.handleFormChange}
                                 resetFormFields={this.resetFormFields}
                                 showFormToggle={this.showFormToggle}
-                                addTodoItem={this.addTodoItem} />
+                                handleFormChange={this.handleFormChange}
+                                saveTodoItem={this.addTodoItem}
+                            />
                         </Box>
                     }
                 </div>
