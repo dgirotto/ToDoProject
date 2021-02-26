@@ -159,7 +159,7 @@ export class TodoItem extends Component {
     render() {
         return (
             <Box p={2}
-                onClick={() => this.setState({ open: !this.state.open })}
+                onClick={() => !this.state.showForm && this.setState({ open: !this.state.open })}
                 className="item"
                 style={{ cursor: "pointer" }}>
                 {!this.state.showForm ?
@@ -322,7 +322,7 @@ class TodoManager extends Component {
                             color="secondary"
                             className="button"
                             style={{ background: "#0a8e0a" }}>
-                            NEW ITEM
+                            ADD TODO
                         </Button>
                         :
                         <Box p={2} className="item">
