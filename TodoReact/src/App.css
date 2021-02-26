@@ -5,19 +5,9 @@
     padding: 0 15px;
 }
 
-.title, .subtitle {
-    margin: 10px;
-    text-align: center;
-}
-
 .title {
+    text-align: center;
     color: #7cedff;
-}
-
-.subtitle {
-    margin-bottom: 20px;
-    font-weight: 600;
-    color: #f7f7f7;
 }
 
 .item-container {
@@ -89,12 +79,23 @@
     font-size: 28px !important;
 }
 
+.badge {
+    width: 100px;
+    margin-right: 15px;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    color: #f7f7f7;
+}
+
 .complete {
-    color: #0a8e0a;
+    background: #0a8e0a;
 }
 
 .incomplete {
-    color: #e71c1c;
+    background: #e71c1c;
 }
 
 .button {

@@ -5,12 +5,9 @@ import { TodoService } from "./services/todo.service"
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 import TextField from '@material-ui/core/TextField';
-
 import IconButton from "@material-ui/core/IconButton";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
-import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
-import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 
 export class TodoForm extends Component {
     render() {
@@ -92,8 +89,9 @@ export class TodoItem extends Component {
         this.setFormFields();
     }
 
-    componentWillReceiveProps(newProps) {
-    }
+    // componentWillReceiveProps(newProps) {
+    //     this.setFormFields();
+    // }
 
     setFormFields = () => {
         this.setState({
@@ -124,7 +122,18 @@ export class TodoItem extends Component {
     }
 
     updateTodoItem = () => {
-        // TodoService.updateTodoItem(this.state.formValues);
+        TodoService.updateTodoItem(this.state.formValues)
+            .then(() => {
+                // this.setFormFields();
+                this.props.getTodoItems();
+
+                this.setState({
+                    showForm: false
+                });
+            })
+            .catch(() => {
+                alert("Unable to update item!");
+            });
     }
 
     editTodoItem = event => {
@@ -150,17 +159,18 @@ export class TodoItem extends Component {
                 {!this.state.showForm ?
                     <>
                         <div className="item-header">
+                            <span>{this.state.item.title}</span>
                             <div>
                                 {this.state.item.isComplete ?
-                                    <CheckCircleRoundedIcon className="icon complete" /> :
-                                    <CancelRoundedIcon className="icon incomplete" />}
-                                <span style={{ marginLeft: "10px" }}>{this.state.item.title}</span>
+                                    <span className="badge completed">COMPLETED</span> :
+                                    <span className="badge incomplete">NOT COMPLETED</span>
+                                }
+                                <IconButton aria-label="expand row" size="small">
+                                    {this.state.open ?
+                                        <KeyboardArrowUpIcon className="icon" /> :
+                                        <KeyboardArrowDownIcon className="icon" />}
+                                </IconButton>
                             </div>
-                            <IconButton aria-label="expand row" size="small">
-                                {this.state.open ?
-                                    <KeyboardArrowUpIcon className="icon" /> :
-                                    <KeyboardArrowDownIcon className="icon" />}
-                            </IconButton>
                         </div>
                         {this.state.open && (
                             <div className="item-body">
@@ -219,22 +229,40 @@ class TodoManager extends Component {
             description: "",
             dueDate: new Date().toISOString().slice(0, 10)
         },
-        todoItems: [
-            {
-                id: 1,
-                title: "Item 1",
-                description: "Item 1 content",
-                dueDate: "2021-10-25",
-                isComplete: true
-            },
-            {
-                id: 2,
-                title: "Item 2",
-                description: "Item 2 content",
-                dueDate: "2021-11-17",
-                isComplete: false
-            },
-        ]
+        todoItems: null
+    }
+
+    componentDidMount() {
+        this.getTodoItems();
+    }
+
+    addTodoItem = () => {
+        TodoService.addTodoItem(this.state.formValues)
+            .then(() => {
+                this.resetFormFields();
+                this.getTodoItems();
+
+                this.setState({
+                    showForm: false
+                });
+            })
+            .catch(() => {
+                alert("Unable to add item!");
+            });
+    }
+
+    getTodoItems = () => {
+        TodoService.getTodoItems()
+            .then(res => {
+                res.data.forEach(item => {
+                    item.dueDate = item.dueDate.slice(0, 10);
+                });
+
+                this.setState({ todoItems: res.data });
+            })
+            .catch(() => {
+                alert("Unable to retrieve items!");
+            });
     }
 
     resetFormFields = () => {
@@ -263,10 +291,6 @@ class TodoManager extends Component {
         });
     }
 
-    addTodoItem = () => {
-        alert("ADDING TODO ITEM");
-    }
-
     render() {
         return (
             <>
@@ -274,9 +298,12 @@ class TodoManager extends Component {
                 <div className="item-container">
                     {this.state.todoItems && this.state.todoItems.length > 0 ? (
                         <>
-                            <h2 className="subtitle">MY TODO LIST</h2>
                             {this.state.todoItems.map(item => (
-                                <TodoItem key={item.id} item={item} />
+                                <TodoItem
+                                    key={item.id}
+                                    item={item}
+                                    getTodoItems={this.getTodoItems}
+                                />
                             ))}
                         </>
                     ) :

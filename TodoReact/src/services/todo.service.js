@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiEndpoint = 'https://localhost:44395/api/todo';
+const apiEndpoint = 'https://localhost:44319/api/TodoItems';
 
 function getTodoItems() {
     const headers = getHeaders();
